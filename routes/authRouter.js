@@ -1,12 +1,11 @@
 const { google } = require('googleapis');
-const { googleLogin } = require('../controllers/authController');
+const { googleLogin, googleSignup, Signin, Signup } = require('../controllers/authController');
 
 const router = require('express').Router();
 
-router.get('/test', (req,res)=>{
-    res.send('test')
-})
-
-router.post('/google',googleLogin)
+router.post('/google/signup',googleSignup)
+router.post('/google/signin',googleLogin)
+router.post('/signin',Signin)
+router.post('/signup',Signup)
 
 module.exports = router
