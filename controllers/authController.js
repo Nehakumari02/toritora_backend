@@ -1,6 +1,7 @@
 const axios = require("axios")
 const { oauth2client } = require("../utils/googleConfig")
 const UserModel = require("../models/userModel")
+const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken")
 
 const googleLogin = async (req,res)=>{
@@ -34,7 +35,7 @@ const googleLogin = async (req,res)=>{
         res.cookie("toritoraAuth", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
@@ -66,7 +67,7 @@ const googleSignup = async (req,res)=>{
         let existingUser = true;
         if(!user){
             user = await UserModel.create({
-                name,email,image:picture
+                name,email,image:picture,isGoogleLogin:true
             })
             existingUser = false;
         }
@@ -79,20 +80,35 @@ const googleSignup = async (req,res)=>{
             }
         )
 
-        res.cookie("toritoraAuth", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
 
         if(existingUser){
-            return res.status(204).json({
-                message: "User already exist",
-                user
-            })
+            if(user.isGoogleLogin){
+                res.cookie("toritoraAuth", token, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+                    maxAge: 7 * 24 * 60 * 60 * 1000
+                });
+
+                return res.status(204).json({
+                    message: "User already exist",
+                    user
+                })
+            }
+            else{
+
+                return res.status(205).json({
+                    message: "Login with credentials instead"
+                })
+            }
         }
         else {
+            res.cookie("toritoraAuth", token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+                maxAge: 7 * 24 * 60 * 60 * 1000
+            });
             return res.status(200).json({
                 message: "Successfully registered new user",
                 user
@@ -109,14 +125,30 @@ const googleSignup = async (req,res)=>{
 
 const Signin = async (req,res)=>{
     try {
-        const {code} = req.query
+        const {email,password} = req.body
+        console.log(email,password)
 
         let user = await UserModel.findOne({email})
         if(!user){
-            user = await UserModel.create({
-                name,email,image:picture
+            return res.status(203).json({
+                message:"User not found"
             })
         }
+
+        console.log(user)
+        if(user.isGoogleLogin){
+            return res.status(202).json({
+                message: "Kindly login using google"
+            })
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                message: "Invalid password"
+            });
+        }
+
         const {_id} = user
         const token = jwt.sign(
             {_id,email},
@@ -126,70 +158,72 @@ const Signin = async (req,res)=>{
             }
         )
 
-        // ✅ Set token as a cookie
         res.cookie("toritoraAuth", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
         return res.status(200).json({
-            message: "Success",
+            message: "Login successful",
             user
         })
     } catch (error) {
+        console.log(error)
         res.status(500).json({
             message:"Internal server error"
         })
     }
 }
 
-const Signup = async (req,res)=>{
+const Signup = async (req, res) => {
     try {
-        const {code} = req.query
-        console.log("code:",code)
-        const googleRes = await oauth2client.getToken(code)
-        oauth2client.setCredentials(googleRes.tokens)
+        const { email, password } = req.body;
 
-        const userRes = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`)
-        console.log(userRes)
-
-        const {email,name,picture} = userRes.data
-
-        let user = await UserModel.findOne({email})
-        if(!user){
-            user = await UserModel.create({
-                name,email,image:picture
-            })
+        let user = await UserModel.findOne({ email });
+        if (user) {
+            return res.status(400).json({
+                message: "User already exists"
+            });
         }
-        const {_id} = user
+
+        console.log(email,password)
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        user = await UserModel.create({
+            email,
+            password: hashedPassword
+        });
+
+        const { _id } = user;
         const token = jwt.sign(
-            {_id,email},
+            { _id, email },
             process.env.JWT_SECRET,
             {
-                expiresIn:process.env.JWT_TIMEOUT
+                expiresIn: process.env.JWT_TIMEOUT
             }
-        )
+        );
 
-        // ✅ Set token as a cookie
         res.cookie("toritoraAuth", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
         return res.status(200).json({
-            message: "Success",
+            message: "Signup successful",
             user
-        })
+        });
     } catch (error) {
+        console.error("Signup Error:", error);
         res.status(500).json({
-            message:"Internal server error"
-        })
+            message: "Internal server error"
+        });
     }
-}
+};
+
 
 module.exports = {
     googleLogin,

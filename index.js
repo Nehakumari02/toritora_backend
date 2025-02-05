@@ -4,6 +4,7 @@ require('dotenv').config()
 const authRouter = require('./routes/authRouter')
 
 const app = express()
+app.use(express.json());
 const PORT = process.env.PORT || 8080
 require('./models/dbConnection')
 
