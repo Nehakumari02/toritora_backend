@@ -37,7 +37,8 @@ const googleLogin = async (req,res)=>{
             secure: process.env.NODE_ENV === "production",
             sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000,
-            path: '/'
+            path: '/',
+            domain: '.vercel.app',
         });
 
         return res.status(200).json({
@@ -89,7 +90,8 @@ const googleSignup = async (req,res)=>{
                     secure: process.env.NODE_ENV === "production",
                     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
                     maxAge: 7 * 24 * 60 * 60 * 1000,
-                    path: '/'
+                    path: '/',
+                    domain: '.vercel.app',
                 });
 
                 return res.status(204).json({
@@ -110,7 +112,8 @@ const googleSignup = async (req,res)=>{
                 secure: process.env.NODE_ENV === "production",
                 sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
                 maxAge: 7 * 24 * 60 * 60 * 1000,
-                path: '/'
+                path: '/',
+                domain: '.vercel.app',
             });
             return res.status(200).json({
                 message: "Successfully registered new user",
@@ -166,7 +169,8 @@ const Signin = async (req,res)=>{
             secure: process.env.NODE_ENV === "production",
             sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000,
-            path: '/'
+            path: '/',
+            domain: '.vercel.app',
         });
 
         return res.status(200).json({
@@ -214,7 +218,8 @@ const Signup = async (req, res) => {
             secure: process.env.NODE_ENV === "production",
             sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000,
-            path: '/'
+            path: '/',
+            domain: '.vercel.app',
         });
 
         return res.status(200).json({
