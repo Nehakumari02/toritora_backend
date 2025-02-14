@@ -4,6 +4,7 @@ const UserModel = require("../models/userModel")
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
 const VerificationModel = require("../models/verificationCodeModel");
+const { sendWelcomeEmail } = require("../utils/sendMail");
 
 const googleLogin = async (req,res)=>{
     try {
@@ -241,6 +242,8 @@ const Signup = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
             path: '/',
         });
+
+        sendWelcomeEmail(email);
 
         return res.status(200).json({
             message: "Signup successful",
