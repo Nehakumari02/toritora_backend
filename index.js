@@ -2,6 +2,7 @@ const express = require('express')
 require('dotenv').config()
 
 const authRouter = require('./routes/authRouter')
+const emailRouter = require('./routes/emailRouter')
 
 const app = express()
 
@@ -38,6 +39,8 @@ app.get('/',(req,res)=>{
 })
 
 app.use('/auth',authRouter)
+
+app.use('/email',emailRouter)
 
 
 app.listen(PORT, ()=>{

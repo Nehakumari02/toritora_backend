@@ -2,7 +2,8 @@ const axios = require("axios")
 const { oauth2client } = require("../utils/googleConfig")
 const UserModel = require("../models/userModel")
 const bcrypt = require('bcrypt');
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
+const VerificationModel = require("../models/verificationCodeModel");
 
 const googleLogin = async (req,res)=>{
     try {
@@ -23,6 +24,13 @@ const googleLogin = async (req,res)=>{
                 message: "User does not exist"
             })
         }
+
+        if(!user.isGoogleLogin){
+            return res.status(203).json({
+                message: "Login with credentials"
+            })
+        }
+
         const {_id} = user
         const token = jwt.sign(
             {_id,email},
@@ -183,7 +191,9 @@ const Signin = async (req,res)=>{
 
 const Signup = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, otp } = req.body;
+
+        console.log(email,password,otp)
 
         let user = await UserModel.findOne({ email });
         if (user) {
@@ -192,12 +202,27 @@ const Signup = async (req, res) => {
             });
         }
 
+        const verification = await VerificationModel.findOne({ email });
+        if (!verification) {
+            return res.status(400).json({
+                message: "Verification code has not been sent or has expired"
+            });
+        }
+
+        if (verification.verificationCode !== otp) {
+            return res.status(400).json({
+                message: "OTP does not match"
+            });
+        }
+
         console.log(email,password)
+        console.log("Code verification successful")
         const hashedPassword = await bcrypt.hash(password, 10);
 
         user = await UserModel.create({
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            isGoogleLogin:false
         });
 
         const { _id } = user;
