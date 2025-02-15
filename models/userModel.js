@@ -58,10 +58,10 @@ const UserSchema = new mongoose.Schema({
     assistanceWithModels: { type: String },
     hobbies: { type: String },
     idProof: { type: String },
-    twitter: { type: String },
-    instagram: { type: String },
     height: { type: String },
     modellingExperiance: { type: String },
+    instagram: { type: String },
+    twitter: { type: String },
     images: { type: [String], default: [] } // Array of URLs
 
 
