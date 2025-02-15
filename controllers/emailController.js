@@ -3,7 +3,7 @@ const UserModel = require("../models/userModel");
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
 const VerificationModel = require("../models/verificationCodeModel");
-const sendMail = require("../utils/sendMail");
+const { sendMail } = require("../utils/sendMail");
 
 const generateVerificationCode = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();

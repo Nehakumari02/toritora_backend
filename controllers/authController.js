@@ -6,38 +6,38 @@ const jwt = require("jsonwebtoken");
 const VerificationModel = require("../models/verificationCodeModel");
 const { sendWelcomeEmail } = require("../utils/sendMail");
 
-const googleLogin = async (req,res)=>{
+const googleLogin = async (req, res) => {
     try {
-        const {code} = req.query
-        console.log("code:",code)
+        const { code } = req.query
+        console.log("code:", code)
         const googleRes = await oauth2client.getToken(code)
         oauth2client.setCredentials(googleRes.tokens)
 
         const userRes = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`)
 
-        const {email,name,picture} = userRes.data
+        const { email, name, picture } = userRes.data
 
-        let user = await UserModel.findOne({email})
-        console.log("user:",user)
-        if(!user){
+        let user = await UserModel.findOne({ email })
+        console.log("user:", user)
+        if (!user) {
             console.log("user does not exist")
             return res.status(204).json({
                 message: "User does not exist"
             })
         }
 
-        if(!user.isGoogleLogin){
+        if (!user.isGoogleLogin) {
             return res.status(203).json({
                 message: "Login with credentials"
             })
         }
 
-        const {_id} = user
+        const { _id } = user
         const token = jwt.sign(
-            {_id,email},
+            { _id, email },
             process.env.JWT_SECRET,
             {
-                expiresIn:process.env.JWT_TIMEOUT
+                expiresIn: process.env.JWT_TIMEOUT
             }
         )
 
@@ -54,45 +54,45 @@ const googleLogin = async (req,res)=>{
             user
         })
     } catch (error) {
-        console.log("Signin with google error: ",error)
+        console.log("Signin with google error: ", error)
         res.status(500).json({
-            message:"Internal server error",
+            message: "Internal server error",
             error
         })
     }
 }
 
-const googleSignup = async (req,res)=>{
+const googleSignup = async (req, res) => {
     try {
-        const {code} = req.query
-        console.log("code:",code)
+        const { code } = req.query
+        console.log("code:", code)
         const googleRes = await oauth2client.getToken(code)
         oauth2client.setCredentials(googleRes.tokens)
 
         const userRes = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`)
 
-        const {email,name,picture} = userRes.data
+        const { email, name, picture } = userRes.data
 
-        let user = await UserModel.findOne({email})
+        let user = await UserModel.findOne({ email })
         let existingUser = true;
-        if(!user){
+        if (!user) {
             user = await UserModel.create({
-                name,email,image:picture,isGoogleLogin:true
+                name, email, profilePicture: picture, isGoogleLogin: true
             })
             existingUser = false;
         }
-        const {_id} = user
+        const { _id } = user
         const token = jwt.sign(
-            {_id,email},
+            { _id, email },
             process.env.JWT_SECRET,
             {
-                expiresIn:process.env.JWT_TIMEOUT
+                expiresIn: process.env.JWT_TIMEOUT
             }
         )
 
 
-        if(existingUser){
-            if(user.isGoogleLogin){
+        if (existingUser) {
+            if (user.isGoogleLogin) {
                 res.cookie("toritoraAuth", token, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
@@ -106,7 +106,7 @@ const googleSignup = async (req,res)=>{
                     user
                 })
             }
-            else{
+            else {
 
                 return res.status(205).json({
                     message: "Login with credentials instead"
@@ -127,28 +127,28 @@ const googleSignup = async (req,res)=>{
             })
         }
     } catch (error) {
-        console.log("Signup with google error: ",error)
+        console.log("Signup with google error: ", error)
         res.status(500).json({
-            message:"Internal server error",
+            message: "Internal server error",
             error
         })
     }
 }
 
-const Signin = async (req,res)=>{
+const Signin = async (req, res) => {
     try {
-        const {email,password} = req.body
-        console.log(email,password)
+        const { email, password } = req.body
+        console.log(email, password)
 
-        let user = await UserModel.findOne({email})
-        if(!user){
+        let user = await UserModel.findOne({ email })
+        if (!user) {
             return res.status(203).json({
-                message:"User not found"
+                message: "User not found"
             })
         }
 
         console.log(user)
-        if(user.isGoogleLogin){
+        if (user.isGoogleLogin) {
             return res.status(202).json({
                 message: "Kindly login using google"
             })
@@ -161,12 +161,12 @@ const Signin = async (req,res)=>{
             });
         }
 
-        const {_id} = user
+        const { _id } = user
         const token = jwt.sign(
-            {_id,email},
+            { _id, email },
             process.env.JWT_SECRET,
             {
-                expiresIn:process.env.JWT_TIMEOUT
+                expiresIn: process.env.JWT_TIMEOUT
             }
         )
 
@@ -185,7 +185,7 @@ const Signin = async (req,res)=>{
     } catch (error) {
         console.log(error)
         res.status(500).json({
-            message:"Internal server error"
+            message: "Internal server error"
         })
     }
 }
@@ -194,7 +194,7 @@ const Signup = async (req, res) => {
     try {
         const { email, password, otp } = req.body;
 
-        console.log(email,password,otp)
+        console.log(email, password, otp)
 
         let user = await UserModel.findOne({ email });
         if (user) {
@@ -216,14 +216,14 @@ const Signup = async (req, res) => {
             });
         }
 
-        console.log(email,password)
+        console.log(email, password)
         console.log("Code verification successful")
         const hashedPassword = await bcrypt.hash(password, 10);
 
         user = await UserModel.create({
             email,
             password: hashedPassword,
-            isGoogleLogin:false
+            isGoogleLogin: false
         });
 
         const { _id } = user;

@@ -1,13 +1,17 @@
 const express = require('express')
 require('dotenv').config()
+const cookieParser = require('cookie-parser');
+
 
 const authRouter = require('./routes/authRouter')
 const emailRouter = require('./routes/emailRouter')
+const registrationRouter = require('./routes/registrationRouter')
 
 const app = express()
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser());
 
 const PORT = process.env.PORT || 8080
 require('./models/dbConnection')
@@ -24,7 +28,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.options('*', cors(corsOptions)); 
+app.options('*', cors(corsOptions));
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', process.env.ORIGIN);
@@ -34,15 +38,17 @@ app.use((req, res, next) => {
     next();
 });
 
-app.get('/',(req,res)=>{
+app.get('/', (req, res) => {
     res.send("Hello from auth server")
 })
 
-app.use('/auth',authRouter)
+app.use('/auth', authRouter)
 
-app.use('/email',emailRouter)
+app.use('/email', emailRouter)
+
+app.use('/registration', registrationRouter)
 
 
-app.listen(PORT, ()=>{
+app.listen(PORT, () => {
     console.log(`Server is running on PORT: ${PORT}`)
 })
