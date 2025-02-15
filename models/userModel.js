@@ -57,7 +57,14 @@ const UserSchema = new mongoose.Schema({
     stress: { type: String },
     assistanceWithModels: { type: String },
     hobbies: { type: String },
-    idProof: { type: String }
+    idProof: { type: String },
+    twitter: { type: String },
+    instagram: { type: String },
+    height: { type: String },
+    modellingExperiance: { type: String },
+    images: { type: [String], default: [] } // Array of URLs
+
+
 
 })
 
