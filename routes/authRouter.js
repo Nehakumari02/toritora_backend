@@ -1,4 +1,3 @@
-const { google } = require('googleapis');
 const { googleLogin, googleSignup, Signin, Signup } = require('../controllers/authController');
 
 const router = require('express').Router();

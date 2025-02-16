@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const authRouter = require('./routes/authRouter')
 const emailRouter = require('./routes/emailRouter')
 const registrationRouter = require('./routes/registrationRouter')
+const profileRouter = require('./routes/profileRouter')
 
 const app = express()
 
@@ -42,11 +43,13 @@ app.get('/', (req, res) => {
     res.send("Hello from auth server")
 })
 
-app.use('/auth', authRouter)
+app.use('/api/auth', authRouter)
 
-app.use('/email', emailRouter)
+app.use('/api/email', emailRouter)
 
-app.use('/registration', registrationRouter)
+app.use('/api/registration', registrationRouter)
+
+app.use('/api/profile', profileRouter)
 
 
 app.listen(PORT, () => {
