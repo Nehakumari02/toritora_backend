@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
 const VerificationModel = require("../models/verificationCodeModel");
 const { sendWelcomeEmail } = require("../utils/sendMail");
+const { authenticateUser } = require("../utils/authenticate");
 
 const googleLogin = async (req, res) => {
     try {
@@ -40,6 +41,11 @@ const googleLogin = async (req, res) => {
                 expiresIn: process.env.JWT_TIMEOUT
             }
         )
+
+        await UserModel.findOneAndUpdate(
+            { _id },
+            { authToken: token }
+        );
 
         res.cookie("toritoraAuth", token, {
             httpOnly: true,
@@ -90,6 +96,10 @@ const googleSignup = async (req, res) => {
             }
         )
 
+        await UserModel.findOneAndUpdate(
+            { _id },
+            { authToken: token }
+        );
 
         if (existingUser) {
             if (user.isGoogleLogin) {
@@ -170,6 +180,11 @@ const Signin = async (req, res) => {
             }
         )
 
+        await UserModel.findOneAndUpdate(
+            { _id },
+            { authToken: token }
+        );
+
         res.cookie("toritoraAuth", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -235,6 +250,11 @@ const Signup = async (req, res) => {
             }
         );
 
+        await UserModel.findOneAndUpdate(
+            { _id },
+            { authToken: token }
+        );
+
         res.cookie("toritoraAuth", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -257,10 +277,62 @@ const Signup = async (req, res) => {
     }
 };
 
+const Logout = async (req, res) => {
+    try {
+        const email = await authenticateUser(req,res);
+
+        const token = jwt.sign(
+            { },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: 0
+            }
+        );
+
+        await UserModel.findOneAndUpdate(
+            { email },
+            { authToken: token }
+        );
+
+        res.cookie("toritoraAuth", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            maxAge: 0,
+            path: '/',
+        });
+
+        return res.status(200).json({
+            message: "Logout successful"
+        });
+    } catch (error) {
+        console.error("Signup Error:", error);
+        const token = jwt.sign(
+            { },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: 0
+            }
+        );
+        
+        res.cookie("toritoraAuth", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            maxAge: 0,
+            path: '/',
+        });
+        res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+};
+
 
 module.exports = {
     googleLogin,
     googleSignup,
     Signin,
-    Signup
+    Signup,
+    Logout
 }

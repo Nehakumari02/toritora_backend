@@ -6,14 +6,12 @@ const jwt = require("jsonwebtoken");
 
 const saveUserProfession = async (req, res) => {
     try {
-        const token = req.cookies.toritoraAuth
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const email = await authenticateUser(req,res);
 
-        const { email } = decoded;
         const { profession } = req.body;
         const user = await UserModel.findOneAndUpdate(
             { email },
-            { $set: { profession: req.body.profession } },
+            { $set: { profession: profession } },
             { new: true }
         );
         console.log(user)
@@ -33,10 +31,8 @@ const saveUserProfession = async (req, res) => {
 
 const saveUserDetails = async (req, res) => {
     try {
-        const token = req.cookies.toritoraAuth
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const email = await authenticateUser(req,res);
 
-        const { email } = decoded;
         const userDetails = req.body;
         const user = await UserModel.findOneAndUpdate(
             { email },

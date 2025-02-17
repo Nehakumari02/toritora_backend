@@ -4,20 +4,9 @@ const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
 const { authenticateUser } = require("../utils/authenticate");
 
-const fetchUser = async (req, res) => {
+const getUploadUrl = async (req, res) => {
     try {
         const email = await authenticateUser(req,res);
-
-        const user = await UserModel.findOne(
-            { email },
-            { _id: 0, password: 0 }
-        );
-
-        if (!user) {
-            return res.status(404).json({
-                message: "User not found"
-            });
-        }
 
         return res.status(200).json({
             message: "User details fetched successfully",
@@ -33,7 +22,7 @@ const fetchUser = async (req, res) => {
     }
 };
 
-const updateUser = async (req, res) => {
+const deleteUploadedFile = async (req, res) => {
     try {
         const email = await authenticateUser(req,res);
 
@@ -70,6 +59,6 @@ const updateUser = async (req, res) => {
 };
 
 module.exports = {
-    fetchUser,
-    updateUser
+    getUploadUrl,
+    deleteUploadedFile
 };

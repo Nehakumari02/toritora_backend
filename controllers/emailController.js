@@ -12,7 +12,6 @@ const generateVerificationCode = () => {
 const sendVerificationCode = async (req, res) => {
     try {
         const { email } = req.body;
-        console.log(email)
 
         let user = await UserModel.findOne({ email });
 

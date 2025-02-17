@@ -7,6 +7,7 @@ const authRouter = require('./routes/authRouter')
 const emailRouter = require('./routes/emailRouter')
 const registrationRouter = require('./routes/registrationRouter')
 const profileRouter = require('./routes/profileRouter')
+const imageRouter = require('./routes/imageRouter')
 
 const app = express()
 
@@ -50,6 +51,8 @@ app.use('/api/email', emailRouter)
 app.use('/api/registration', registrationRouter)
 
 app.use('/api/profile', profileRouter)
+
+app.use('/api/image', imageRouter)
 
 
 app.listen(PORT, () => {
