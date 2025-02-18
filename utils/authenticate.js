@@ -17,7 +17,7 @@ async function authenticateUser(req, res) {
     if (!user || user.authToken !== token) {
       throw new Error("Unauthorized: Invalid token or user not found");
     }
-    return email;
+    return { _id, email };
     
   } catch (error) {
     console.error("Authentication error:", error.message);

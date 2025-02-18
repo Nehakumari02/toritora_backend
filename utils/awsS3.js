@@ -1,25 +1,24 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+const { S3Client, PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 const s3Client = new S3Client({ 
-    region: process.env.AWS_S3_REGION,
+    region: process.env.AWS_REGION,
     credentials: {
-        accessKeyId: process.env.AWS_S3_ACCESS_KEY,
+        accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY
     }
 });
 
-async function getUploadUrl(fileName, fileType, folderPath) {
+async function getUploadUrlS3(fileName, fileType, folderPath) {
     try {
       const key = `${folderPath}/${fileName}`;
       const command = new PutObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET_NAME,
         Key: key,
         ContentType: fileType,
-        ACL: "public-read",
       });
   
-      const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 5 });
+      const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 5000 });
   
       return {
         uploadUrl: signedUrl,
@@ -31,7 +30,7 @@ async function getUploadUrl(fileName, fileType, folderPath) {
     }
 }
 
-async function deleteUploadedFile(key) {
+async function deleteUploadedFileS3(key) {
     try {
         const command = new DeleteObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET_NAME,
@@ -44,4 +43,4 @@ async function deleteUploadedFile(key) {
     }
 }
 
-module.exports = { getUploadUrl, deleteUploadedFile };
+module.exports = { getUploadUrlS3, deleteUploadedFileS3 };

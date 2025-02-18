@@ -6,7 +6,7 @@ const { authenticateUser } = require("../utils/authenticate");
 
 const fetchUser = async (req, res) => {
     try {
-        const email = await authenticateUser(req,res);
+        const { _id, email } = await authenticateUser(req,res);
 
         const user = await UserModel.findOne(
             { email },
@@ -35,7 +35,7 @@ const fetchUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        const email = await authenticateUser(req,res);
+        const { _id, email } = await authenticateUser(req,res);
 
         const updateData = { ...req.body };
 

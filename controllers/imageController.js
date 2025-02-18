@@ -1,20 +1,28 @@
 const axios = require("axios");
 const UserModel = require("../models/userModel");
-const bcrypt = require('bcrypt');
-const jwt = require("jsonwebtoken");
 const { authenticateUser } = require("../utils/authenticate");
+const { getUploadUrlS3, deleteUploadedFileS3 } = require("../utils/awsS3")
 
 const getUploadUrl = async (req, res) => {
     try {
-        const email = await authenticateUser(req,res);
+        const { _id, email } = await authenticateUser(req,res);
+
+        let { fileName, fileType, folderPath } = req.body;
+
+        const fileNameWithoutSpaces = fileName.replace(/\s+/g, '').substring(0, 6);
+        const randomCode = Math.floor(100000 + Math.random() * 900000);
+        fileName = `${_id}_${randomCode}_${fileNameWithoutSpaces}`;
+
+        const {uploadUrl,fileUrl} = await getUploadUrlS3(fileName, fileType, folderPath)
 
         return res.status(200).json({
-            message: "User details fetched successfully",
-            user
+            message: "Link generated successfully",
+            uploadUrl,
+            viewUrl:fileUrl
         });
 
     } catch (error) {
-        console.error("Error in fetching user:", error.message);
+        console.error("Error in generating link:", error.message);
         return res.status(500).json({
             message: "Internal server error",
             error: error.message
@@ -24,33 +32,25 @@ const getUploadUrl = async (req, res) => {
 
 const deleteUploadedFile = async (req, res) => {
     try {
-        const email = await authenticateUser(req,res);
+        // const { _id, email } = await authenticateUser(req,res);
 
-        const updateData = { ...req.body };
+        let { fileUrl } = req.body;
 
-        delete updateData._id;
-        delete updateData.email;
-        delete updateData.password;
-
-        const updatedUser = await UserModel.findOneAndUpdate(
-            { email },
-            { $set: updateData },
-            { new: true, projection: { _id: 0, password: 0 } }
-        );
-
-        if (!updatedUser) {
-            return res.status(404).json({
-                message: "User not found"
-            });
+        function extractFileNameFromUrl(url) {
+            const urlParts = url.split('/');
+            const fileName = urlParts[urlParts.length - 1];
+            return fileName;
         }
-
+        
+        const key = extractFileNameFromUrl(fileUrl)
+        await deleteUploadedFileS3(key);
+        
         return res.status(200).json({
-            message: "User details updated successfully",
-            updatedUser
+            message: "File deleted successfully",
         });
 
     } catch (error) {
-        console.error("Error in updating user:", error.message);
+        console.error("Error in deleting file:", error.message);
         return res.status(500).json({
             message: "Internal server error",
             error: error.message

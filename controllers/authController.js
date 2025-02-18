@@ -279,7 +279,7 @@ const Signup = async (req, res) => {
 
 const Logout = async (req, res) => {
     try {
-        const email = await authenticateUser(req,res);
+        const { _id, email } = await authenticateUser(req,res);
 
         const token = jwt.sign(
             { },

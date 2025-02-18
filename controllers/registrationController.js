@@ -2,11 +2,12 @@ const axios = require("axios");
 const UserModel = require("../models/userModel");
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
+const { authenticateUser } = require("../utils/authenticate");
 
 
 const saveUserProfession = async (req, res) => {
     try {
-        const email = await authenticateUser(req,res);
+        const { _id, email } = await authenticateUser(req,res);
 
         const { profession } = req.body;
         const user = await UserModel.findOneAndUpdate(
@@ -31,7 +32,7 @@ const saveUserProfession = async (req, res) => {
 
 const saveUserDetails = async (req, res) => {
     try {
-        const email = await authenticateUser(req,res);
+        const { _id, email } = await authenticateUser(req,res);
 
         const userDetails = req.body;
         const user = await UserModel.findOneAndUpdate(
