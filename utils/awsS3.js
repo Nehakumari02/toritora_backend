@@ -37,7 +37,6 @@ async function deleteUploadedFileS3(key) {
         Key: key,
         });
         await s3Client.send(command);
-        console.log("File deleted successfully.");
     } catch (error) {
         console.error("Error deleting file:", error);
     }

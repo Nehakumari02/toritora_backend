@@ -35,14 +35,9 @@ const deleteUploadedFile = async (req, res) => {
         // const { _id, email } = await authenticateUser(req,res);
 
         let { fileUrl } = req.body;
+        const key = fileUrl.split('amazonaws.com/')[1]
 
-        function extractFileNameFromUrl(url) {
-            const urlParts = url.split('/');
-            const fileName = urlParts[urlParts.length - 1];
-            return fileName;
-        }
         
-        const key = extractFileNameFromUrl(fileUrl)
         await deleteUploadedFileS3(key);
         
         return res.status(200).json({
