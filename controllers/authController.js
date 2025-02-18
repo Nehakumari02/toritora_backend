@@ -55,6 +55,12 @@ const googleLogin = async (req, res) => {
             path: '/',
         });
 
+        if(!user.isProfileCompleted){
+            return res.status(202).json({
+                message: "Login successful, profile incomplete"
+            })
+        }
+
         return res.status(200).json({
             message: "Success",
             user
@@ -110,6 +116,12 @@ const googleSignup = async (req, res) => {
                     maxAge: 7 * 24 * 60 * 60 * 1000,
                     path: '/',
                 });
+
+                if(!user.isProfileCompleted){
+                    return res.status(202).json({
+                        message: "Signup successful, profile incomplete"
+                    })
+                }
 
                 return res.status(204).json({
                     message: "User already exist",
@@ -192,6 +204,12 @@ const Signin = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
             path: '/',
         });
+
+        if(!user.isProfileCompleted){
+            return res.status(202).json({
+                message: "Login successful, profile incomplete"
+            })
+        }
 
         return res.status(200).json({
             message: "Login successful",
