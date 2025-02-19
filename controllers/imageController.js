@@ -5,7 +5,7 @@ const { getUploadUrlS3, deleteUploadedFileS3 } = require("../utils/awsS3")
 
 const getUploadUrl = async (req, res) => {
     try {
-        const { _id, email } = await authenticateUser(req,res);
+        const { _id, email } = await authenticateUser(req, res);
 
         let { fileName, fileType, folderPath } = req.body;
 
@@ -13,12 +13,12 @@ const getUploadUrl = async (req, res) => {
         const randomCode = Math.floor(100000 + Math.random() * 900000);
         fileName = `${_id}_${randomCode}_${fileNameWithoutSpaces}`;
 
-        const {uploadUrl,fileUrl} = await getUploadUrlS3(fileName, fileType, folderPath)
+        const { uploadUrl, fileUrl } = await getUploadUrlS3(fileName, fileType, folderPath)
 
         return res.status(200).json({
             message: "Link generated successfully",
             uploadUrl,
-            viewUrl:fileUrl
+            viewUrl: fileUrl
         });
 
     } catch (error) {
@@ -37,9 +37,9 @@ const deleteUploadedFile = async (req, res) => {
         let { fileUrl } = req.body;
         const key = fileUrl.split('amazonaws.com/')[1]
 
-        
+
         await deleteUploadedFileS3(key);
-        
+
         return res.status(200).json({
             message: "File deleted successfully",
         });
