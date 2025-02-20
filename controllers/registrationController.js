@@ -15,7 +15,7 @@ const saveUserProfession = async (req, res) => {
             { $set: { profession: profession } },
             { new: true }
         );
-        console.log(user)
+        // console.log(user)
         return res.status(200).json({
             message: "Profession Updated Successfully",
 
@@ -41,7 +41,7 @@ const saveUserDetails = async (req, res) => {
             { new: true }
         );
 
-        console.log(user, email)
+        // console.log(user, email)
 
         return res.status(200).json({
             message: "User Details Updated Successfully",

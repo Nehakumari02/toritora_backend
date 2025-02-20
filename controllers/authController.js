@@ -19,7 +19,7 @@ const googleLogin = async (req, res) => {
         const { email, name, picture } = userRes.data
 
         let user = await UserModel.findOne({ email })
-        console.log("user:", user)
+        // console.log("user:", user)
         if (!user) {
             console.log("user does not exist")
             return res.status(204).json({
@@ -160,7 +160,7 @@ const googleSignup = async (req, res) => {
 const Signin = async (req, res) => {
     try {
         const { email, password } = req.body
-        console.log(email, password)
+        // console.log(email, password)
 
         let user = await UserModel.findOne({ email })
         if (!user) {
@@ -169,7 +169,7 @@ const Signin = async (req, res) => {
             })
         }
 
-        console.log(user)
+        // console.log(user)
         if (user.isGoogleLogin) {
             return res.status(202).json({
                 message: "Kindly login using google"
@@ -227,7 +227,7 @@ const Signup = async (req, res) => {
     try {
         const { email, password, otp } = req.body;
 
-        console.log(email, password, otp)
+        // console.log(email, password, otp)
 
         let user = await UserModel.findOne({ email });
         if (user) {
@@ -249,7 +249,7 @@ const Signup = async (req, res) => {
             });
         }
 
-        console.log(email, password)
+        // console.log(email, password)
         console.log("Code verification successful")
         const hashedPassword = await bcrypt.hash(password, 10);
 

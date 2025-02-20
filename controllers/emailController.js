@@ -15,7 +15,7 @@ const sendVerificationCode = async (req, res) => {
 
         let user = await UserModel.findOne({ email });
 
-        console.log("user:", user);
+        // console.log("user:", user);
 
         if (user) {
             console.log("user already exist");

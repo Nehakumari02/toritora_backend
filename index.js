@@ -8,6 +8,8 @@ const emailRouter = require('./routes/emailRouter')
 const registrationRouter = require('./routes/registrationRouter')
 const profileRouter = require('./routes/profileRouter')
 const imageRouter = require('./routes/imageRouter')
+const searchRouter = require('./routes/searchRouter')
+const dataRouter = require('./routes/dataRouter')
 
 const app = express()
 
@@ -53,6 +55,10 @@ app.use('/api/registration', registrationRouter)
 app.use('/api/profile', profileRouter)
 
 app.use('/api/image', imageRouter)
+
+app.use('/api/search', searchRouter)
+
+app.use('/api/data', dataRouter)
 
 
 app.listen(PORT, () => {
