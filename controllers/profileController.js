@@ -26,8 +26,9 @@ const fetchUser = async (req, res) => {
 
     } catch (error) {
         console.error("Error in fetching user:", error.message);
-        return res.status(500).json({
-            message: "Internal server error",
+        const statusCode = error.statusCode || 500;
+        return res.status(statusCode).json({
+            message: statusCode === 401 ? "Unauthorized" : "Internal server error",
             error: error.message
         });
     }
@@ -62,8 +63,9 @@ const updateUser = async (req, res) => {
 
     } catch (error) {
         console.error("Error in updating user:", error.message);
-        return res.status(500).json({
-            message: "Internal server error",
+        const statusCode = error.statusCode || 500;
+        return res.status(statusCode).json({
+            message: statusCode === 401 ? "Unauthorized" : "Internal server error",
             error: error.message
         });
     }

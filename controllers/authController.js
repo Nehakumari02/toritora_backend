@@ -324,7 +324,7 @@ const Logout = async (req, res) => {
             message: "Logout successful"
         });
     } catch (error) {
-        console.error("Signup Error:", error);
+        console.error("Logout Error:", error);
         const token = jwt.sign(
             { },
             process.env.JWT_SECRET,

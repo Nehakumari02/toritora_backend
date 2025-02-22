@@ -23,8 +23,9 @@ const getUploadUrl = async (req, res) => {
 
     } catch (error) {
         console.error("Error in generating link:", error.message);
-        return res.status(500).json({
-            message: "Internal server error",
+        const statusCode = error.statusCode || 500;
+        return res.status(statusCode).json({
+            message: statusCode === 401 ? "Unauthorized" : "Internal server error",
             error: error.message
         });
     }
@@ -46,8 +47,9 @@ const deleteUploadedFile = async (req, res) => {
 
     } catch (error) {
         console.error("Error in deleting file:", error.message);
-        return res.status(500).json({
-            message: "Internal server error",
+        const statusCode = error.statusCode || 500;
+        return res.status(statusCode).json({
+            message: statusCode === 401 ? "Unauthorized" : "Internal server error",
             error: error.message
         });
     }

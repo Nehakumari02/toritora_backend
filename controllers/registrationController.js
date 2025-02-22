@@ -23,9 +23,10 @@ const saveUserProfession = async (req, res) => {
 
     } catch (error) {
         console.log("Error in saving user profession: ", error);
-        res.status(500).json({
-            message: "Internal server error",
-            error
+        const statusCode = error.statusCode || 500;
+        return res.status(statusCode).json({
+            message: statusCode === 401 ? "Unauthorized" : "Internal server error",
+            error: error.message
         });
     }
 };
@@ -50,9 +51,10 @@ const saveUserDetails = async (req, res) => {
 
     } catch (error) {
         console.log("Error in saving data: ", error);
-        res.status(500).json({
-            message: "Internal server error",
-            error
+        const statusCode = error.statusCode || 500;
+        return res.status(statusCode).json({
+            message: statusCode === 401 ? "Unauthorized" : "Internal server error",
+            error: error.message
         });
     }
 };
