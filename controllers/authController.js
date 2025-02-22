@@ -63,7 +63,7 @@ const googleLogin = async (req, res) => {
 
         return res.status(200).json({
             message: "Success",
-            user
+            user:{profession:user?.profession}
         })
     } catch (error) {
         console.log("Signin with google error: ", error)
@@ -123,9 +123,9 @@ const googleSignup = async (req, res) => {
                     })
                 }
 
-                return res.status(204).json({
+                return res.status(201).json({
                     message: "User already exist",
-                    user
+                    user:{profession:user?.profession}
                 })
             }
             else {
@@ -213,7 +213,7 @@ const Signin = async (req, res) => {
 
         return res.status(200).json({
             message: "Login successful",
-            user
+            user:{profession:user?.profession}
         })
     } catch (error) {
         console.log(error)

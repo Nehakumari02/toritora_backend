@@ -4,7 +4,7 @@ const { authenticateUser } = require("../utils/authenticate");
 const fetchModels = async (req, res) => {
     try {
 
-        const { pageNo = "1", pageSize = "10", new: isNew } = req.query;
+        const { pageNo = "1", pageSize = "10", isNew = false, type = "modelling" } = req.query;
 
         const limit = parseInt(pageSize);
         const skip = (parseInt(pageNo) - 1) * limit;
@@ -15,6 +15,12 @@ const fetchModels = async (req, res) => {
         const filter = {};
         if (isNew) {
             filter.createdAt = { $gte: oneMonthAgo };
+        }
+
+        if (type === "modelling") {
+            filter.profession = "photographer";
+        } else if (type === "photographer") {
+            filter.profession = "modelling";
         }
 
         const models = await UserModel.find(filter, { 
