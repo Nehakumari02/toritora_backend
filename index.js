@@ -10,6 +10,9 @@ const profileRouter = require('./routes/profileRouter')
 const imageRouter = require('./routes/imageRouter')
 const searchRouter = require('./routes/searchRouter')
 const dataRouter = require('./routes/dataRouter')
+const favouriteRouter = require('./routes/favouriteRouter')
+const slotRouter = require('./routes/slotRouter')
+const bookingRouter = require('./routes/bookingRouter')
 
 const app = express()
 
@@ -55,10 +58,16 @@ app.use('/api/registration', registrationRouter)
 app.use('/api/profile', profileRouter)
 
 app.use('/api/image', imageRouter)
-
+// Yet to be implemented
 app.use('/api/search', searchRouter)
 
 app.use('/api/data', dataRouter)
+
+app.use('/api/favourite', favouriteRouter)
+
+app.use('/api/slot', slotRouter)
+
+app.use('/api/booking', bookingRouter)
 
 
 app.listen(PORT, () => {

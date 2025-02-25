@@ -12,7 +12,7 @@ const fetchModels = async (req, res) => {
         const oneMonthAgo = new Date();
         oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
-        const filter = {};
+        const filter = { isProfileCompleted: true };
         if (isNew) {
             filter.createdAt = { $gte: oneMonthAgo };
         }
@@ -63,7 +63,7 @@ const fetchUserInfo = async (req, res) => {
             { userId },
 
             { 
-                _id: 0,
+                _id: 1,
                 firstName: 1,
                 lastName: 1,
                 address: 1,
