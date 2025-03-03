@@ -13,6 +13,8 @@ const dataRouter = require('./routes/dataRouter')
 const favouriteRouter = require('./routes/favouriteRouter')
 const slotRouter = require('./routes/slotRouter')
 const bookingRouter = require('./routes/bookingRouter')
+const toritaiRouter = require('./routes/toritaiRouter')
+const notificationRouter = require('./routes/notificationRouter')
 
 const app = express()
 
@@ -69,6 +71,9 @@ app.use('/api/slot', slotRouter)
 
 app.use('/api/booking', bookingRouter)
 
+app.use('/api/toritai', toritaiRouter)
+
+app.use('/api/notification', notificationRouter)
 
 app.listen(PORT, () => {
     console.log(`Server is running on PORT: ${PORT}`)

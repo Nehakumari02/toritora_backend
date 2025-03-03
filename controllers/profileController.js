@@ -9,7 +9,7 @@ const fetchUser = async (req, res) => {
         const { _id, email } = await authenticateUser(req,res);
 
         const user = await UserModel.findOne(
-            { email },
+            { _id },
             { _id: 0, password: 0 }
         );
 
@@ -45,7 +45,7 @@ const updateUser = async (req, res) => {
         delete updateData.password;
 
         const updatedUser = await UserModel.findOneAndUpdate(
-            { email },
+            { _id },
             { $set: updateData },
             { new: true, projection: { _id: 0, password: 0 } }
         );

@@ -10,7 +10,22 @@ async function authenticateUser(req, res) {
       throw error;
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      if (err.name === "TokenExpiredError") {
+        const error = new Error("Unauthorized: Token has expired");
+        error.statusCode = 401;
+        throw error;
+      }
+      const error = new Error("Unauthorized: Invalid token");
+      error.statusCode = 401;
+      throw error;
+    }
+
     const { _id, email } = decoded;
 
     const user = await UserModel.findOne({ _id, email }, "authToken");

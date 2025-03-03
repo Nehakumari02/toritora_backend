@@ -121,7 +121,7 @@ const updateSlot = async (req, res) => {
             return res.status(404).json({ message: "Slot not found or unauthorized" });
         }
         
-        return res.status(200).json({ message: "Slot updated successfully", updatedSlot });
+        return res.status(200).json({ message: "Slot updated successfully", updatedSlot  });
 
     } catch (error) {
         console.error("Error updating slot:", error);

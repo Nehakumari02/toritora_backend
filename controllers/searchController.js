@@ -1,75 +1,80 @@
-const axios = require("axios");
 const UserModel = require("../models/userModel");
-const bcrypt = require('bcrypt');
-const jwt = require("jsonwebtoken");
+const SlotModel = require("../models/slotModel");
 const { authenticateUser } = require("../utils/authenticate");
 
-const fetchUser = async (req, res) => {
+const searchWithFilter = async (req, res) => {
     try {
-        const { _id, email } = await authenticateUser(req,res);
+        const { _id, email } = await authenticateUser(req, res);
+        const { name, location, date, genres, experience, type, pageNo = 1, pageSize = 10 } = req.body;
+        console.log(name,location,date,genres,experience,type)
 
-        const user = await UserModel.findOne(
-            { email },
-            { _id: 0, password: 0 }
-        );
+        const limit = parseInt(pageSize);
+        const skip = (parseInt(pageNo) - 1) * limit;
 
-        if (!user) {
-            return res.status(404).json({
-                message: "User not found"
-            });
+        const filter = { isProfileCompleted: true };
+
+        if (name) {
+            filter.$or = [
+                { firstName: { $regex: name, $options: "i" } },
+                { lastName: { $regex: name, $options: "i" } }
+            ];
         }
 
-        return res.status(200).json({
-            message: "User details fetched successfully",
-            user
-        });
+        if (location && Array.isArray(location) && location.length > 0) {
+            filter.location = { $in: location };
+        }
 
+        if (genres) {
+            filter.genres = { $in: genres };
+        }
+
+        if (experience) {
+            filter.experience = experience;
+        }
+
+        if (type === "modelling") {
+            filter.profession = "photographer";
+        } else if (type === "photographer") {
+            filter.profession = "modelling";
+        }
+
+        if (date) {
+            const availableUserIds = await SlotModel.distinct("userId", { date });
+            filter.userId = { $in: availableUserIds };
+        }
+
+        const users = await UserModel.find(filter, {
+            firstName: 1,
+            lastName: 1,
+            address: 1,
+            profilePicture: 1,
+            userId: 1,
+            experience: 1,
+            genres: 1,
+            createdAt: 1,
+            _id: 0
+        })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        const totalCount = await UserModel.countDocuments(filter);
+
+        return res.status(200).json({
+            message: "Filtered models fetched successfully",
+            users,
+            totalPages: Math.ceil(totalCount / limit),
+            currentPage: pageNo,
+            totalCount
+        });
     } catch (error) {
-        console.error("Error in fetching user:", error.message);
-        return res.status(500).json({
-            message: "Internal server error",
+        console.error("Error in filtering models:", error.message);
+        const statusCode = error.statusCode || 500;
+        return res.status(statusCode).json({
+            message: statusCode === 401 ? "Unauthorized" : "Internal server error",
             error: error.message
         });
     }
 };
 
-const updateUser = async (req, res) => {
-    try {
-        const { _id, email } = await authenticateUser(req,res);
-
-        const updateData = { ...req.body };
-
-        delete updateData._id;
-        delete updateData.email;
-        delete updateData.password;
-
-        const updatedUser = await UserModel.findOneAndUpdate(
-            { email },
-            { $set: updateData },
-            { new: true, projection: { _id: 0, password: 0 } }
-        );
-
-        if (!updatedUser) {
-            return res.status(404).json({
-                message: "User not found"
-            });
-        }
-
-        return res.status(200).json({
-            message: "User details updated successfully",
-            updatedUser
-        });
-
-    } catch (error) {
-        console.error("Error in updating user:", error.message);
-        return res.status(500).json({
-            message: "Internal server error",
-            error: error.message
-        });
-    }
-};
-
-module.exports = {
-    fetchUser,
-    updateUser
-};
+module.exports = { searchWithFilter };

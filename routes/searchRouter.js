@@ -1,7 +1,6 @@
-const { fetchUser, updateUser } = require('../controllers/profileController');
+const { searchWithFilter } = require('../controllers/searchController');
 const router = require('express').Router();
 
-router.get('/user',fetchUser)
-router.post('/user',updateUser)
+router.get('/', searchWithFilter)
 
 module.exports = router
