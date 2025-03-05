@@ -46,7 +46,7 @@ const UserSchema = new mongoose.Schema({
     userId: { type: String },
     username: { type: String },
     genres: { type: String },
-    achievements: {  default: [] },
+    achievements: { type: [String], default: [] },
 
     cameraType: { type: String },
     shootingPrice: { type: String },
