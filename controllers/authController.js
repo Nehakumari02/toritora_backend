@@ -402,11 +402,112 @@ const Logout = async (req, res) => {
     }
 };
 
+const ResetPassword = async (req, res) => {
+    try {
+        const { password } = req.body;
+        const resetPasswordToken = req.cookies.resetPasswordToken;
+
+        if (!resetPasswordToken) {
+            return res.status(400).json({
+                message: "Reset password token is missing"
+            });
+        }
+
+        let decoded;
+        try {
+            decoded = jwt.verify(resetPasswordToken, process.env.JWT_SECRET);
+        } catch (error) {
+            res.clearCookie("resetPasswordToken");
+            return res.status(400).json({
+                message: "Invalid or expired token"
+            });
+        }
+
+        const user = await UserModel.findById(decoded._id);
+        if (!user) {
+            res.clearCookie("resetPasswordToken");
+            return res.status(400).json({
+                message: "User not found"
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        await UserModel.findByIdAndUpdate(
+            user._id,
+            { password: hashedPassword },
+            { new: true }
+        );
+
+
+        res.clearCookie("resetPasswordToken");
+
+        return res.status(200).json({
+            message: "Password reset successfully"
+        });
+
+    } catch (error) {
+        console.error("Reset Password Error:", error);
+        res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+};
+
+const VerifyResetPasswordToken = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        let user = await UserModel.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "User not found with this email"
+            });
+        }
+
+        if (!user.forgetPasswordToken || user.forgetPasswordToken !== otp) {
+            return res.status(400).json({
+                message: "Invalid OTP"
+            });
+        }
+        if (user.forgetPasswordTokenExpiry < Date.now()) {
+            return res.status(400).json({
+                message: "OTP has expired, please request a new one"
+            });
+        }
+
+        const { _id } = user;
+        const resetPasswordToken = jwt.sign(
+            { _id, email },
+            process.env.JWT_SECRET,
+            { expiresIn: "5m" }
+        );
+        res.cookie("resetPasswordToken", resetPasswordToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            maxAge: 5 * 60 * 1000,
+            path: '/',
+        });
+
+        return res.status(200).json({
+            message: "OTP verified successfully"
+        });
+    } catch (error) {
+        console.error("Verify Reset Password Token Error:", error);
+        res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+};
 
 module.exports = {
     googleLogin,
     googleSignup,
     Signin,
     Signup,
-    Logout
+    Logout,
+    ResetPassword,
+    VerifyResetPasswordToken
 }

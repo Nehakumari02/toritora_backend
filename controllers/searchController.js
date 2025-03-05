@@ -4,7 +4,7 @@ const { authenticateUser } = require("../utils/authenticate");
 
 const searchWithFilter = async (req, res) => {
     try {
-        const { _id, email } = await authenticateUser(req, res);
+        // const { _id, email } = await authenticateUser(req, res);
         const { name, location, isWeek, date, genres, experience, type, pageNo = 1, pageSize = 10 } = req.query;
         console.log(name,location,date,genres,experience,type)
 
