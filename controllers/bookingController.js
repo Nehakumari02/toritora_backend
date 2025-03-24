@@ -2,6 +2,8 @@ const mongoose = require('mongoose')
 const Request = require("../models/requestModel");
 const Slot = require("../models/slotModel");
 const { authenticateUser } = require("../utils/authenticate");
+const UserModel = require('../models/userModel');
+const Reservation = require('../models/reservationModel');
 
 const fetchRequests = async (req, res) => {
     try {
@@ -35,7 +37,7 @@ const addRequest = async (req, res) => {
     session.startTransaction();
 
     try {
-        const { slot_id } = req.body;
+        const { slot_id, ...formData } = req.body;
         const { _id: user_id_2 } = await authenticateUser(req, res);
 
         if (!slot_id) {
@@ -58,7 +60,9 @@ const addRequest = async (req, res) => {
             date: slot.date,
             startTime: slot.startTime,
             endTime: slot.endTime,
-            status: "pending"
+            status: "pending",
+            ...formData,
+            editRequestStatus: "none"
         });
 
         await newRequest.save({ session });
@@ -175,6 +179,39 @@ const acceptRequest = async (req, res) => {
 
             slot.status = "booked";
             await slot.save({ session });
+
+            const allowedFields = [
+                "shootingPlace", "shootingLocation", "meetingPoint", "shootingConcept",
+                "clothingType", "shoesType", "itemsType", "makeUpType",
+                "shootingPlaceRainy", "shootingLocationRainy", "meetingPointRainy",
+                "shootingConceptRainy", "clothingTypeRainy", "shoesTypeRainy",
+                "itemsTypeRainy", "makeUpTypeRainy"
+            ];
+
+            const requestFields = Object.keys(request._doc).reduce((acc, key) => {
+                if (allowedFields.includes(key)) {
+                    acc[key] = request[key];
+                }
+                return acc;
+            }, {});
+
+            const user = await UserModel.findById(slot.user_id).session(session);
+
+            const newReservation = new Reservation({
+                user_id: slot.user_id,
+                user_id_2: request.user_id_2,
+                date: slot.date,
+                startTime: slot.startTime,
+                endTime: slot.endTime,
+                location: user.location || "",
+                fees: user.shootingPrice || 0,
+                transportation_fees: user.transportationFee || 0,
+                payment_status: "pending",
+                reservation_status: "pending",
+                ...requestFields,
+            });
+
+            await newReservation.save({ session });
 
             await session.commitTransaction();
             session.endSession();
