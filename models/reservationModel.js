@@ -34,7 +34,32 @@ const reservationSchema = new mongoose.Schema({
   itemsTypeRainy: { type: String },
   makeUpTypeRainy: { type: String },
 
-  reservation_status: { type: String, default: "pending", enum: ["pending", "completed", "running"]}
+  reservation_status: { type: String, default: "pending", enum: ["pending", "completed", "running"]},
+
+  // Edited fields (optional, won't be created until a value is assigned)
+  editedShootingPlace: { type: String },
+  editedShootingLocation: { type: String },
+  editedMeetingPoint: { type: String },
+  editedShootingConcept: { type: String },
+  editedClothingType: { type: String },
+  editedShoesType: { type: String },
+  editedItemsType: { type: String },
+  editedMakeUpType: { type: String },
+
+  editedShootingPlaceRainy: { type: String },
+  editedShootingLocationRainy: { type: String },
+  editedMeetingPointRainy: { type: String },
+  editedShootingConceptRainy: { type: String },
+  editedClothingTypeRainy: { type: String },
+  editedShoesTypeRainy: { type: String },
+  editedItemsTypeRainy: { type: String },
+  editedMakeUpTypeRainy: { type: String },
+
+  editRequestStatus: {
+    type: String,
+    enum: ['none', 'pending', 'accepted', 'rejected'],
+    default: 'none',
+  },
 
 }, { timestamps: true });
 
