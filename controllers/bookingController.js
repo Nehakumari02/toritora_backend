@@ -5,6 +5,19 @@ const { authenticateUser } = require("../utils/authenticate");
 const UserModel = require('../models/userModel');
 const Reservation = require('../models/reservationModel');
 
+function calculatePrice(startTime, endTime, costPerHour) {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+
+    // Calculate duration in hours
+    const durationHours = (end - start) / (1000 * 60 * 60);
+
+    // Calculate price with 10% increase
+    const price = durationHours * costPerHour * 1.1;
+
+    return Number(price.toFixed(2)); // Return as a number
+}
+
 const fetchRequests = async (req, res) => {
     try {
         const { _id: user_id } = await authenticateUser(req, res);
@@ -196,6 +209,7 @@ const acceptRequest = async (req, res) => {
             }, {});
 
             const user = await UserModel.findById(slot.user_id).session(session);
+            const fees = calculatePrice(slot.startTime, slot.endTime, user.shootingPrice || 0);
 
             const newReservation = new Reservation({
                 user_id: slot.user_id,
@@ -204,7 +218,7 @@ const acceptRequest = async (req, res) => {
                 startTime: slot.startTime,
                 endTime: slot.endTime,
                 location: user.location || "",
-                fees: user.shootingPrice || 0,
+                fees,
                 transportation_fees: user.transportationFee || 0,
                 payment_status: "pending",
                 reservation_status: "pending",

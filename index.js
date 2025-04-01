@@ -14,6 +14,7 @@ const favouriteRouter = require('./routes/favouriteRouter')
 const slotRouter = require('./routes/slotRouter')
 const bookingRouter = require('./routes/bookingRouter')
 const reservationRouter = require('./routes/reservationRouter')
+const paymentsRouter = require('./routes/paymentsRouter')
 const toritaiRouter = require('./routes/toritaiRouter')
 const notificationRouter = require('./routes/notificationRouter')
 
@@ -72,7 +73,9 @@ app.use('/api/slot', slotRouter)
 
 app.use('/api/booking', bookingRouter)
 
-app.use('/api/reservation', reservationRouter)
+app.use('/api/reservations', reservationRouter)
+
+app.use('/api/payments', paymentsRouter)
 
 app.use('/api/toritai', toritaiRouter)
 

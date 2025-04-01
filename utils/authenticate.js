@@ -5,6 +5,7 @@ async function authenticateUser(req, res) {
   try {
     const token = req.cookies.toritoraAuth;
     if (!token) {
+      console.log(token)
       const error = new Error("Authorization error: No token provided");
       error.statusCode = 401;
       throw error;

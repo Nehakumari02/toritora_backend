@@ -25,6 +25,8 @@ const fetchReservations = async (req, res) => {
         .skip(skip)
         .limit(limit);
 
+        console.log(reservations)
+
         // Get total count of reservations for pagination info
         const totalReservations = await Reservation.countDocuments({
             $or: [{ user_id: user_id }, { user_id_2: user_id }]
@@ -41,6 +43,43 @@ const fetchReservations = async (req, res) => {
 
     } catch (error) {
         console.error("Error in fetching reservations:", error.message);
+        return res.status(error.statusCode || 500).json({
+            message: error.statusCode === 401 ? "Unauthorized" : "Internal server error",
+            error: error.message
+        });
+    }
+};
+
+const fetchSingleReservation = async (req, res) => {
+    try {
+        const { _id: user_id } = await authenticateUser(req, res);
+
+        // Extract reservation_id from query parameters
+        const { reservation_id } = req.query;
+        if (!reservation_id) {
+            return res.status(400).json({ message: "Reservation ID is required" });
+        }
+
+        // Fetch the reservation by ID and check if the user is part of it
+        const reservation = await Reservation.findOne({
+            _id: reservation_id,
+            $or: [{ user_id: user_id }, { user_id_2: user_id }]
+        })
+        .populate("user_id", "_id firstName lastName profilePicture")
+        .populate("user_id_2", "_id firstName lastName profilePicture");
+
+        if (!reservation) {
+            return res.status(404).json({ message: "Reservation not found" });
+        }
+
+        return res.status(200).json({
+            message: "Reservation fetched successfully",
+            reservation,
+            user_id
+        });
+
+    } catch (error) {
+        console.error("Error in fetching reservation:", error.message);
         return res.status(error.statusCode || 500).json({
             message: error.statusCode === 401 ? "Unauthorized" : "Internal server error",
             error: error.message
@@ -253,4 +292,4 @@ const acceptRequest = async (req, res) => {
     }
 };
 
-module.exports = { fetchReservations, addRequest, deleteRequest, acceptRequest };
+module.exports = { fetchReservations, fetchSingleReservation, addRequest, deleteRequest, acceptRequest };

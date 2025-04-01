@@ -6,7 +6,7 @@ const reservationSchema = new mongoose.Schema({
   
   payment_mode: { type: String },
   payment_id: { type: String},
-  payment_status: { type: String, required: true, default: 'pending', enum: ["pending", "completed", "failed"] },
+  payment_status: { type: String, required: true, default: 'pending', enum: ["pending", "paid", "failed"] },
 
   date: { type: Date, required: true },
   startTime: { type: Date, required: true },
