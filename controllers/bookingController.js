@@ -15,7 +15,8 @@ function calculatePrice(startTime, endTime, costPerHour) {
     // Calculate price with 10% increase
     const price = durationHours * costPerHour * 1.1;
 
-    return Number(price.toFixed(2)); // Return as a number
+    //return Number(price.toFixed(2)); // Return as a number
+    return Math.round(price);
 }
 
 const fetchRequests = async (req, res) => {
