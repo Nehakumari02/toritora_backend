@@ -48,8 +48,9 @@ const generateUniqueUserName = async (email) => {
 const googleLogin = async (req, res) => {
     try {
         const { code } = req.query
-        const { rememberMe = false } = req.body
-        console.log("code:", code)
+        // const { rememberMe = false } = req.query
+        const rememberMe = req.query.rememberMe === "true"; 
+        // console.log("code:", code, rememberMe)
         const googleRes = await oauth2client.getToken(code)
         oauth2client.setCredentials(googleRes.tokens)
 
@@ -75,8 +76,16 @@ const googleLogin = async (req, res) => {
         const { _id } = user
 
         // Set token expiry based on rememberMe flag
-        const tokenExpiry = rememberMe ? "30d" : process.env.JWT_TIMEOUT; // 30 days if rememberMe is true, else default
-        const cookieExpiry = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000; // 30 days or 7 days
+        // const tokenExpiry = rememberMe ? "30d" : process.env.JWT_TIMEOUT; // 30 days if rememberMe is true, else default
+        // const cookieExpiry = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000; // 30 days or 7 days
+
+        const tokenExpiry = rememberMe 
+            ? process.env.JWT_EXPIRY_REMEMBER_ME 
+            : process.env.JWT_EXPIRY_NORMAL;
+
+        const cookieExpiry = rememberMe 
+            ? Number(process.env.COOKIE_EXPIRY_REMEMBER_ME) 
+            : Number(process.env.COOKIE_EXPIRY_NORMAL);
 
         const token = jwt.sign(
             { _id, email },
@@ -233,8 +242,16 @@ const Signin = async (req, res) => {
         const { _id } = user
 
         // Set token expiry based on rememberMe flag
-        const tokenExpiry = rememberMe ? "30d" : process.env.JWT_TIMEOUT; // 30 days if rememberMe is true, else default
-        const cookieExpiry = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000; // 30 days or 7 days
+        // const tokenExpiry = rememberMe ? "30d" : process.env.JWT_TIMEOUT; // 30 days if rememberMe is true, else default
+        // const cookieExpiry = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000; // 30 days or 7 days
+
+        const tokenExpiry = rememberMe 
+            ? process.env.JWT_EXPIRY_REMEMBER_ME 
+            : process.env.JWT_EXPIRY_NORMAL;
+
+        const cookieExpiry = rememberMe 
+            ? Number(process.env.COOKIE_EXPIRY_REMEMBER_ME) 
+            : Number(process.env.COOKIE_EXPIRY_NORMAL);
 
         const token = jwt.sign(
             { _id, email },

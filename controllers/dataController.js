@@ -4,8 +4,14 @@ const { authenticateUser } = require("../utils/authenticate");
 
 const fetchModels = async (req, res) => {
     try {
-
         const { pageNo = "1", pageSize = "10", isNew = false, type = "modelling" } = req.query;
+        let isNewBool;
+        if(isNew === 'true'){
+            isNewBool = true;
+        }
+        else{
+            isNewBool === false;
+        }
 
         const limit = parseInt(pageSize);
         const skip = (parseInt(pageNo) - 1) * limit;
@@ -14,7 +20,7 @@ const fetchModels = async (req, res) => {
         oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
         const filter = { isProfileCompleted: true };
-        if (isNew) {
+        if (isNewBool) {
             filter.createdAt = { $gte: oneMonthAgo };
         }
 
@@ -45,6 +51,7 @@ const fetchModels = async (req, res) => {
             models,
             totalPages: Math.ceil(totalCount / limit),
             currentPage: pageNo,
+            totalCount,
         });
     } catch (error) {
         console.error("Error in fetching models:", error.message);

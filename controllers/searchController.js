@@ -5,8 +5,8 @@ const { authenticateUser } = require("../utils/authenticate");
 const searchWithFilter = async (req, res) => {
     try {
         // const { _id, email } = await authenticateUser(req, res);
-        const { name, location, isWeek, date, genres, experience, type, pageNo = 1, pageSize = 10 } = req.query;
-        console.log(name,location,date,genres,experience,type)
+        const { name, location, isWeek, isMonth, date, genres, experience, type, pageNo = 1, pageSize = 10 } = req.query;
+        console.log(name,location,date,isWeek,isMonth,genres,experience,type,pageNo,pageSize)
 
         const limit = parseInt(pageSize);
         const skip = (parseInt(pageNo) - 1) * limit;
@@ -47,16 +47,20 @@ const searchWithFilter = async (req, res) => {
         //     console.log("Available Users on", date, ":", availableUserIds);
         // }
 
-        if (date || isWeek) {
+        if (date || isWeek || isMonth) {
             let dateFilter = {};
             
             if (date) {
                 dateFilter.date = date;
+            } else if (isMonth === "true") {
+                const today = new Date();
+                const nextWeek = new Date();
+                nextWeek.setDate(today.getDate() + 60);
+                dateFilter.date = { $gte: today.toISOString().split("T")[0], $lte: nextWeek.toISOString().split("T")[0] };
             } else if (isWeek === "true") {
                 const today = new Date();
                 const nextWeek = new Date();
                 nextWeek.setDate(today.getDate() + 7);
-
                 dateFilter.date = { $gte: today.toISOString().split("T")[0], $lte: nextWeek.toISOString().split("T")[0] };
             }
 
@@ -87,7 +91,6 @@ const searchWithFilter = async (req, res) => {
             .limit(limit);
 
         const totalCount = await UserModel.countDocuments(filter);
-console.log(users)
         return res.status(200).json({
             message: "Filtered models fetched successfully",
             users,
