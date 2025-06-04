@@ -20,9 +20,9 @@ const fetchModels = async (req, res) => {
         oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
         const filter = { isProfileCompleted: true };
-        if (isNewBool) {
-            filter.createdAt = { $gte: oneMonthAgo };
-        }
+        // if (isNewBool) {
+        //     filter.createdAt = { $gte: oneMonthAgo };
+        // }
 
         if (type === "modelling") {
             filter.profession = "photographer";
