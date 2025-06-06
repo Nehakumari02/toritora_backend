@@ -1,3 +1,4 @@
+const FavouriteList = require("../models/favouriteListModel");
 const Toritai = require("../models/toritaiModel");
 const UserModel = require("../models/userModel");
 const { authenticateUser } = require("../utils/authenticate");
@@ -106,10 +107,13 @@ const fetchUserInfo = async (req, res) => {
 
         const isToritaiSent = await Toritai.exists({ user_id: _id, user_id_2: user._id });
 
+        const isFavourite = await FavouriteList.exists({ user_id: _id, f_user_id: user._id });
+
         return res.status(200).json({
             message: "User details fetched successfully",
             user,
-            isToritaiSent: !!isToritaiSent
+            isToritaiSent: !!isToritaiSent,
+            isFavourite: !!isFavourite
         });
 
     } catch (error) {

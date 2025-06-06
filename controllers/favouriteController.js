@@ -4,14 +4,25 @@ const { authenticateUser } = require("../utils/authenticate");
 const fetchFavourite = async (req, res) => {
     try {
         const { _id: user_id } = await authenticateUser(req, res);
+        const { pageNo = "1", pageSize = "10" } = req.query;
+
+        const limit = parseInt(pageSize);
+        const skip = (parseInt(pageNo) - 1) * limit;
 
         const favourites = await FavouriteList.find({ user_id })
-            .populate("f_user_id", "firstName lastName profilePicture")
-            .sort({ createdAt: -1 });
+            .populate("f_user_id", "firstName lastName address location profilePicture userId createdAt")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        const totalCount = await FavouriteList.countDocuments({ user_id });
 
         return res.status(200).json({
             message: "Favourite users fetched successfully",
-            favourites
+            favourites,
+            totalPages: Math.ceil(totalCount / limit),
+            currentPage: parseInt(pageNo),
+            totalCount
         });
 
     } catch (error) {
@@ -69,7 +80,7 @@ const deleteFavourite = async (req, res) => {
             return res.status(404).json({ message: "User not found in favourites" });
         }
 
-        return res.status(200).json({ message: "User removed from favourites successfully" });
+        return res.status(201).json({ message: "User removed from favourites successfully" });
 
     } catch (error) {
         console.error("Error in removing favourite:", error.message);
