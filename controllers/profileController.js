@@ -7,11 +7,13 @@ const { authenticateUser } = require("../utils/authenticate");
 const fetchUser = async (req, res) => {
     try {
         const { _id, email } = await authenticateUser(req,res);
+        const start = Date.now();
 
         const user = await UserModel.findOne(
             { _id },
             { _id: 0, password: 0 }
-        );
+        ).lean();
+        console.log("Query Time:", Date.now() - start);
 
         if (!user) {
             return res.status(404).json({

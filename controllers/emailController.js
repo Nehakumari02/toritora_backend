@@ -11,7 +11,7 @@ const generateVerificationCode = () => {
 
 const sendVerificationCode = async (req, res) => {
     try {
-        const { email } = req.body;
+        const { email, locale, lastName, firstName } = req.body;
 
         let user = await UserModel.findOne({ email });
 
@@ -25,6 +25,8 @@ const sendVerificationCode = async (req, res) => {
         }
 
         const verificationCode = generateVerificationCode();
+
+        //  if want name of user then use this code              <p>${locale==="jn"?`${lastName} ${firstName} 様,`:`Dear ${lastName} ${firstName},`}</p>
 
         const htmlBody = `
             <html>
@@ -95,8 +97,8 @@ const sendVerificationCode = async (req, res) => {
                 </head>
                 <body>
                     <div class="welcome-message">
-                        <p>Dear User,</p>
-                        <p>Welcome to Toritora! We're excited to have you onboard. To complete your registration, please use the following verification code:</p>
+                        <p>${locale==="jn"?`親愛なるユーザー様,`:`Dear user,`}</p>
+                        <p>${locale==="jn"?"このたびは、Toritoraにご登録いただき誠にありがとうございます。ご登録手続きを完了するために、以下の認証コードをご入力ください。":"Welcome to Toritora! We're excited to have you onboard. To complete your registration, please use the following verification code:"}</p>
                     </div>
                     <div class="verification-code">
                         <div class="verification-box">${verificationCode[0]}</div>
@@ -106,14 +108,14 @@ const sendVerificationCode = async (req, res) => {
                         <div class="verification-box">${verificationCode[4]}</div>
                         <div class="verification-box">${verificationCode[5]}</div>
                     </div>
-                    <p>If you did not request this verification, please ignore this email.</p>
-                    <p class="footer">Best regards,<br>Toritora Team</p>
-                    <a href="#" class="cta-button">Toritora</a>
+                    <p>${locale==="jn"?"※このメールにお心当たりのない場合は、破棄していただきますようお願いいたします。":"If you did not request this verification, please ignore this email."}</p>
+                    <p class="footer">${locale==="jn"?"今後ともToritoraをよろしくお願い申し上げます。<br/>―――――――――――――<br/>Toritora運営事務局":"Best regards,<br>Toritora Team"}</p>
+                    <a href="mailto:info@toritora.co.jp" class="cta-button">Toritora</a>
                 </body>
             </html>
         `;
 
-        await sendMail(email, "Your Verification Code", htmlBody);
+        await sendMail(email, locale==="jn"?"あなたの認証コード":"Your Verification Code", htmlBody);
 
         const existingVerification = await VerificationModel.findOne({ email });
         if (existingVerification) {
@@ -144,7 +146,7 @@ const sendVerificationCode = async (req, res) => {
 
 const sendResetPasswordCode = async (req, res) => {
     try {
-        const { email } = req.body;
+        const { email, locale } = req.body;
 
         let user = await UserModel.findOne({ email });
 
@@ -227,12 +229,17 @@ const sendResetPasswordCode = async (req, res) => {
                         .cta-button {
                             background-color: hsl(35, 100%, 45%);
                         }
+                        
+                        .hidden {
+                            display: none;
+                        }
                     </style>
                 </head>
                 <body>
                     <div class="welcome-message">
-                        <p>Dear User,</p>
-                        <p>To complete password reset, please use the following code:</p>
+                        <p class="hidden">Dear User,</p>
+                        <p>${locale==="jn"?`${user.lastName} ${user.firstName} 様,`:`Dear ${user.lastName} ${user.firstName},`}</p>
+                        <p>${locale==="jn"?"パスワードのリセットを完了するには、以下のコードをご利用ください。":"To complete password reset, please use the following code:"}</p>
                     </div>
                     <div class="verification-code">
                         <div class="verification-box">${verificationCode[0]}</div>
@@ -242,14 +249,14 @@ const sendResetPasswordCode = async (req, res) => {
                         <div class="verification-box">${verificationCode[4]}</div>
                         <div class="verification-box">${verificationCode[5]}</div>
                     </div>
-                    <p>If you did not request this code, please ignore this email.</p>
-                    <p class="footer">Best regards,<br>Toritora Team</p>
+                    <p>${locale === "jn" ? "このコードにお心当たりがない場合は、このメールを無視してください。" : "If you did not request this code, please ignore this email."}</p>
+                    <p class="footer">${locale === "jn" ? "今後ともToritoraをよろしくお願い申し上げます。<br>―――――――――――――<br>Toritora運営事務局" : "Best regards,<br>Toritora Team"}</p>
                     <a href="https://meduon.jp" class="cta-button">Toritora</a>
                 </body>
             </html>
         `;
 
-        await sendMail(email, `Your Password Reset Code - ${verificationCode}`, htmlBody);
+        await sendMail(email, locale==="jn"?`パスワード再設定コード - ${verificationCode}`:`Your Password Reset Code - ${verificationCode}`, htmlBody);
 
         await UserModel.updateOne(
             { email },

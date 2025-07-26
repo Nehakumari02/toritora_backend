@@ -129,7 +129,7 @@ const googleLogin = async (req, res) => {
 
 const googleSignup = async (req, res) => {
     try {
-        const { code } = req.query
+        const { code, locale } = req.query
         console.log("code:", code)
         const googleRes = await oauth2client.getToken(code)
         oauth2client.setCredentials(googleRes.tokens)
@@ -199,6 +199,7 @@ const googleSignup = async (req, res) => {
                 maxAge: 7 * 24 * 60 * 60 * 1000,
                 path: '/',
             });
+            sendWelcomeEmail(email,locale);
             return res.status(200).json({
                 message: "Successfully registered new user",
                 user
@@ -294,7 +295,7 @@ const Signin = async (req, res) => {
 
 const Signup = async (req, res) => {
     try {
-        const { email, password, otp } = req.body;
+        const { email, password, otp, locale } = req.body;
 
         // console.log(email, password, otp)
 
@@ -354,7 +355,7 @@ const Signup = async (req, res) => {
             path: '/',
         });
 
-        sendWelcomeEmail(email);
+        sendWelcomeEmail(email,locale);
 
         return res.status(200).json({
             message: "Signup successful",

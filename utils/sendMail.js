@@ -21,7 +21,7 @@ async function sendMail(addresses, subject, htmlBody) {
     console.log(JSON.stringify(result, null, 4));
 }
 
-const sendWelcomeEmail = async (email) => {
+const sendWelcomeEmail = async (email,locale) => {
     const htmlBody = `
         <html>
             <head>
@@ -116,23 +116,41 @@ const sendWelcomeEmail = async (email) => {
             </head>
             <body>
                 <div class="container">
-                    <h1 class="welcom">Welcome to Toritora!</h1>
-                    <p>Hi there,</p>
-                    <p>We’re thrilled to welcome you to Toritora, where you’ll experience seamless and modern solutions tailored to your needs for your photography and modelling career. We’re excited for you to get started!</p>
+                    <h1 class="welcom">${locale === "jn" ? "Toritoraへようこそ！" : "Welcome to Toritora!"}</h1>
+                    <p>${locale === "jn" ? "こんにちは、" : "Hi there,"}</p>
+                    <p>
+                        ${locale === "jn"
+                        ? "Toritoraへようこそ！写真やモデルとしてのキャリアのために、あなたに最適なシームレスでモダンなソリューションをご提供します。今すぐご利用を開始しましょう！"
+                        : "We’re thrilled to welcome you to Toritora, where you’ll experience seamless and modern solutions tailored to your needs for your photography and modelling career. We’re excited for you to get started!"}
+                    </p>
 
-                    <h2>Get Started</h2>
-                    <p>To get the most out of Toritora, we suggest checking out the following:</p>
+                    <h2>${locale === "jn" ? "始めましょう" : "Get Started"}</h2>
+                    <p>
+                        ${locale === "jn"
+                        ? "Toritoraを最大限に活用するために、次のことをお勧めします："
+                        : "To get the most out of Toritora, we suggest checking out the following:"}
+                    </p>
                     <ul>
-                        <li>Explore our platform</li>
-                        <li>Customize your preferences</li>
+                        <li>${locale === "jn" ? "プラットフォームを探索する" : "Explore our platform"}</li>
+                        <li>${locale === "jn" ? "設定をカスタマイズする" : "Customize your preferences"}</li>
                     </ul>
 
-                    <p>Click the button below to dive into your new journey with Toritora!</p>
-                    <a href="#" class="cta-button">Start Now</a>
+                    <p>
+                        ${locale === "jn"
+                        ? "下のボタンをクリックして、Toritoraでの新しい旅を始めましょう！"
+                        : "Click the button below to dive into your new journey with Toritora!"}
+                    </p>
+                    <a href="#" class="cta-button">${locale === "jn" ? "今すぐ始める" : "Start Now"}</a>
 
                     <div class="footer">
-                        <p>If you have any questions, feel free to <a href="mailto:support@toritora.com">contact our support team</a>.</p>
-                        <p>Best regards,<br>The Toritora Team</p>
+                        <p>
+                            ${locale === "jn"
+                                ? 'ご不明な点がございましたら、<a href="mailto:support@toritora.com">サポートチーム</a>までお気軽にご連絡ください。'
+                                : 'If you have any questions, feel free to <a href="mailto:support@toritora.com">contact our support team</a>.'}
+                        </p>
+                        <p>
+                            ${locale === "jn" ? "よろしくお願いいたします。<br>Toritoraチーム" : "Best regards,<br>The Toritora Team"}
+                        </p>
                     </div>
                 </div>
                 <div class="container poster">
@@ -142,7 +160,7 @@ const sendWelcomeEmail = async (email) => {
         </html>
     `;
 
-    await sendMail(email, "Welcome to Toritora", htmlBody);
+    await sendMail(email, locale === "jn" ? "Toritoraへようこそ！" : "Welcome to Toritora!", htmlBody);
 }
 
 module.exports = {

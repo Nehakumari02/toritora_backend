@@ -67,7 +67,7 @@ const searchWithFilter = async (req, res) => {
             const availableUserIds = await Slot.distinct("user_id", { 
                 ...dateFilter,
                 status: "available"
-            });
+            }).lean();
 
             filter._id = { $in: availableUserIds };
 
@@ -88,9 +88,9 @@ const searchWithFilter = async (req, res) => {
         })
             .sort({ createdAt: -1 })
             .skip(skip)
-            .limit(limit);
+            .limit(limit).lean();
 
-        const totalCount = await UserModel.countDocuments(filter);
+        const totalCount = await UserModel.countDocuments(filter).lean();
         return res.status(200).json({
             message: "Filtered models fetched successfully",
             users,
